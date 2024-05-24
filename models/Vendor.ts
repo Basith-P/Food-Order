@@ -32,7 +32,21 @@ const VendorSchema = new Schema(
     rating: { type: Number },
     // foods: { type: Schema.Types.ObjectId, ref: "Food" },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: {
+      transform(doc, ret) {
+        delete ret.password;
+        delete ret.salt;
+        delete ret.__v;
+
+        delete ret.createdAt;
+        delete ret.updatedAt;
+
+        return ret;
+      },
+    },
+  }
 );
 
 export default model<VenderDoc>("Vendor", VendorSchema);

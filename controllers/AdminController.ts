@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { CreateVendorInput } from "../dto";
 
 import Vendor from "../models/Vendor";
+import { encryptPassword, generateSalt } from "../utils/PasswordUtility";
 
 export const createVendor = async (req: Request, res: Response, next: NextFunction) => {
   const { name, address, pincode, email, phone, ownerName, password, foodType } = <
@@ -12,6 +13,9 @@ export const createVendor = async (req: Request, res: Response, next: NextFuncti
   if (existingVendor != null)
     return res.status(401).json({ msg: "Vendor with email already exists" });
 
+  const salt = await generateSalt();
+  const passwd = await encryptPassword(password, salt);
+
   const createVendorRes = await Vendor.create({
     name: name,
     address: address,
@@ -19,11 +23,11 @@ export const createVendor = async (req: Request, res: Response, next: NextFuncti
     email: email,
     phone: phone,
     ownerName: ownerName,
-    password: password,
+    password: passwd,
     foodType: foodType,
     rating: 0,
     coverImages: [],
-    salt: "af123",
+    salt: salt,
     isServiceAvailable: false,
   });
 
