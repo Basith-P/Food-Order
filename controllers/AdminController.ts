@@ -34,9 +34,12 @@ export const createVendor = async (req: Request, res: Response, next: NextFuncti
   return res.json(createVendorRes);
 };
 
-export const getVendors = (req: Request, res: Response, next: NextFunction) => {
-  return res.json("Vendors");
+export const getVendors = async (req: Request, res: Response, next: NextFunction) => {
+  const vendors = await Vendor.find();
+  return res.json({ data: vendors });
 };
-export const getVendorById = (req: Request, res: Response, next: NextFunction) => {
-  return res.json;
+export const getVendorById = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const vendor = await Vendor.findById(id);
+  return res.json({ data: vendor });
 };
