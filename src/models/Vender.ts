@@ -16,7 +16,7 @@ interface VenderDoc extends Document {
   // foods: any;
 }
 
-const VendorSchema = new Schema(
+const VenderSchema = new Schema(
   {
     name: { type: String, required: true },
     ownerName: { type: String, required: true },
@@ -49,4 +49,4 @@ const VendorSchema = new Schema(
   }
 );
 
-export default model<VenderDoc>("Vendor", VendorSchema);
+export default model<VenderDoc>("Vender", VenderSchema);

@@ -1,6 +1,6 @@
 import express from "express";
 
-import { AdminRouter, VendorRouter } from "./routes";
+import { AdminRouter, VenderRouter } from "./routes";
 import mongoose from "mongoose";
 
 const app = express();
@@ -13,7 +13,7 @@ mongoose
   .then(() => console.log("MONGO DB CONNECTED"));
 
 app.use("/admin", AdminRouter);
-app.use("/vendor", VendorRouter);
+app.use("/vendor", VenderRouter);
 
 app.listen(3000, () => {
   console.clear();
