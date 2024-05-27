@@ -1,6 +1,7 @@
 import { Schema, Document, model } from "mongoose";
+import { IFood } from "./Food";
 
-interface VenderDoc extends Document {
+interface IVender extends Document {
   name: string;
   ownerName: string;
   foodType: [string];
@@ -13,7 +14,7 @@ interface VenderDoc extends Document {
   isServiceAvailable: boolean;
   coverImages: [string];
   rating: number;
-  // foods: any;
+  foods?: any;
 }
 
 const VenderSchema = new Schema(
@@ -30,7 +31,7 @@ const VenderSchema = new Schema(
     isServiceAvailable: { type: Boolean },
     coverImages: { type: [String] },
     rating: { type: Number },
-    // foods: { type: Schema.Types.ObjectId, ref: "Food" },
+    foods: { type: Schema.Types.ObjectId, ref: "Food", default: [] },
   },
   {
     timestamps: true,
@@ -49,4 +50,4 @@ const VenderSchema = new Schema(
   }
 );
 
-export default model<VenderDoc>("Vender", VenderSchema);
+export default model<IVender>("Vender", VenderSchema);
