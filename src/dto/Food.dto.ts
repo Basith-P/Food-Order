@@ -5,4 +5,5 @@ export interface CreateFoodInput {
   foodType: string;
   readyTime: number;
   price: number;
+  images: any;
 }

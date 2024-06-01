@@ -90,6 +90,10 @@ export const addFood = async (req: Request, res: Response, next: NextFunction) =
   if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
 
   const { name, desc, category, foodType, readyTime, price } = <CreateFoodInput>req.body;
+
+  const images = req.files as Express.Multer.File[];
+  const imagePaths = images.map((image) => image.filename);
+
   const food = await Food.create({
     venderId: vendor.id,
     name,
@@ -98,7 +102,7 @@ export const addFood = async (req: Request, res: Response, next: NextFunction) =
     foodType,
     readyTime,
     price,
-    images: [],
+    images: imagePaths,
   });
 
   if (vendor.foods == null) vendor.foods = [food.id];
