@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import {
   addFood,
+  getFoods,
   getVenderProfile,
   updateVendorProfile,
   updateVendorService,
@@ -16,7 +17,7 @@ router.use(authenticate);
 router.route("/profile").get(getVenderProfile).patch(updateVendorProfile);
 router.route("/services").patch(updateVendorService);
 
-router.route("/foods").get().post(addFood);
+router.route("/foods").get(getFoods).post(addFood);
 
 router.get("/", (req: Request, res: Response) => {
   return res.send("Hello from Vender");

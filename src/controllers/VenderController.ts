@@ -107,3 +107,14 @@ export const addFood = async (req: Request, res: Response, next: NextFunction) =
 
   return res.json({ data: food, msg: "Food added" });
 };
+
+export const getFoods = async (req: Request, res: Response, next: NextFunction) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const foods = await Food.find({ venderId: vendor.id });
+  return res.json({ data: foods });
+};

@@ -31,7 +31,7 @@ const VenderSchema = new Schema(
     isServiceAvailable: { type: Boolean },
     coverImages: { type: [String] },
     rating: { type: Number },
-    foods: { type: Schema.Types.ObjectId, ref: "Food", default: [] },
+    foods: { type: [Schema.Types.ObjectId], ref: "Food", required: false },
   },
   {
     timestamps: true,
