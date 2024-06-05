@@ -63,6 +63,26 @@ export const updateVendorProfile = async (
   return res.json({ data: result, msg: "Profile updated" });
 };
 
+export const updateVendorCoverimages = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const images = req.files as Express.Multer.File[];
+  const imageNames = images.map((image) => image.filename);
+
+  vendor.coverImages.push(...imageNames);
+
+  const result = await vendor.save();
+  return res.json({ data: result, msg: "Profile image updated" });
+};
+
 export const updateVendorService = async (
   req: Request,
   res: Response,

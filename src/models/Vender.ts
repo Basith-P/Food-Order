@@ -1,5 +1,4 @@
 import { Schema, Document, model } from "mongoose";
-import { IFood } from "./Food";
 
 interface IVender extends Document {
   name: string;
@@ -12,7 +11,7 @@ interface IVender extends Document {
   password: string;
   salt: string;
   isServiceAvailable: boolean;
-  coverImages: [string];
+  coverImages: string[];
   rating: number;
   foods?: any;
 }

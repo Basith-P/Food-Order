@@ -5,6 +5,7 @@ import {
   addFood,
   getFoods,
   getVenderProfile,
+  updateVendorCoverimages,
   updateVendorProfile,
   updateVendorService,
   venderLogin,
@@ -22,43 +23,34 @@ const imageStorage = multer.diskStorage({
   },
 });
 
-// const imageFilter = (req: Request, file: any, cb: any) => {
-//   if (
-//     file.mimetype === "image/png" ||
-//     file.mimetype === "image/jpeg" ||
-//     file.mimetype === "image/jpg"
-//   ) {
-//     cb(null, true);
-//   } else {
-//     cb(null, false);
-//   }
-// };
+const imageFilter = (req: Request, file: any, cb: any) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/jpg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
 
 const upload = multer({
   storage: imageStorage,
   limits: {
     fileSize: 1024 * 1024 * 5,
   },
-  // fileFilter: imageFilter,
+  fileFilter: imageFilter,
 }).array("images", 5);
 
 router.post("/login", venderLogin);
 
 router.use(authenticate);
 router.route("/profile").get(getVenderProfile).patch(updateVendorProfile);
-router.route("/services").patch(updateVendorService);
+router.route("/cover-images").patch(updateVendorCoverimages);
+router.route("/services").patch(upload, updateVendorService);
 
-router
-  .route("/foods")
-  .get(getFoods)
-  .post(
-    (req, res, next) => {
-      console.log(req.body);
-      next();
-    },
-    upload,
-    addFood
-  );
+router.route("/foods").get(getFoods).post(upload, addFood);
 
 router.get("/", (req: Request, res: Response) => {
   return res.send("Hello from Vender");
