@@ -1,4 +1,5 @@
 import { Schema, model, Document } from "mongoose";
+import { IOrder } from "./Order";
 
 interface ICustomer extends Document {
   email: string;
@@ -13,6 +14,7 @@ interface ICustomer extends Document {
   otpExpires: Date;
   lat: number;
   lng: number;
+  orders: string[] | IOrder[];
 }
 
 const CustomerSchema = new Schema(
@@ -29,6 +31,7 @@ const CustomerSchema = new Schema(
     otpExpires: { type: Date },
     lat: { type: Number },
     lng: { type: Number },
+    orders: [{ type: Schema.Types.ObjectId, ref: "Order" }],
   },
   {
     timestamps: true,
