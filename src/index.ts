@@ -1,4 +1,5 @@
 import express from "express";
+import "dotenv/config";
 
 import configureApp from "./services/ExpressApp";
 import dbConnect from "./services/DbConnect";

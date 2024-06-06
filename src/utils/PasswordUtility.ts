@@ -22,7 +22,7 @@ export const validatePassword = async (
   return encrypted === savedPassword;
 };
 
-export const generateToken = (payload: VenderPayload) => {
+export const generateToken = (payload: AuthPayload) => {
   return jwt.sign(payload, "secret", { expiresIn: "1h" });
 };
 

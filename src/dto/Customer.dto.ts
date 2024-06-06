@@ -7,6 +7,12 @@ export class CreateCustomerInputs {
   @Length(6, 12)
   password: string;
 
-  @Length(6, 12)
+  @Length(6, 16)
   phone: string;
+}
+
+export interface CustomerPaylod {
+  _id: string;
+  email: string;
+  isVerified: boolean;
 }
