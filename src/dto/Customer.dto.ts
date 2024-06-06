@@ -19,6 +19,17 @@ export class CustomerLginInputs {
   password: string;
 }
 
+export class EditCustomerInputs {
+  @Length(1, 16)
+  firstName: string;
+
+  @Length(1, 16)
+  lastName: string;
+
+  @Length(6, 16)
+  address: string;
+}
+
 export interface CustomerPaylod {
   _id: string;
   email: string;

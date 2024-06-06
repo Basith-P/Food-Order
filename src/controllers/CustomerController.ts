@@ -1,5 +1,5 @@
 import { plainToClass } from "class-transformer";
-import { CreateCustomerInputs, CustomerLginInputs } from "../dto";
+import { CreateCustomerInputs, CustomerLginInputs, EditCustomerInputs } from "../dto";
 import { Request, Response, Router } from "express";
 import { validate } from "class-validator";
 import {
@@ -90,4 +90,53 @@ export const customerVerify = async (req: Request, res: Response) => {
   await profile.save();
 
   return res.json({ msg: "Customer verified" });
+};
+
+export const requestOTP = async (req: Request, res: Response) => {
+  const customer = req.user;
+  if (!customer) return res.status(401).json({ msg: "Unauthorized" });
+
+  const profile = await Customer.findById(customer._id);
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  const { otp, otpExpires } = generateOTP();
+  profile.otp = otp;
+  profile.otpExpires = otpExpires;
+  await profile.save();
+
+  await onRequestOTP(otp, profile.phone);
+
+  return res.json({ msg: "OTP sent" });
+};
+
+export const getCustomerProfile = async (req: Request, res: Response) => {
+  const customer = req.user;
+  if (!customer) return res.status(401).json({ msg: "Unauthorized" });
+
+  const profile = await Customer.findById(customer._id);
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  return res.json({ data: profile });
+};
+
+export const editCustomerProfile = async (req: Request, res: Response) => {
+  const profileInputs = plainToClass(EditCustomerInputs, req.body);
+  const errors = await validate(profileInputs, { validationError: { target: false } });
+  if (errors.length > 0) return res.status(400).json(errors);
+
+  const customer = req.user;
+  if (!customer) return res.status(401).json({ msg: "Unauthorized" });
+
+  const profile = await Customer.findById(customer._id);
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  const { firstName, lastName, address } = profileInputs;
+
+  if (firstName) profile.firstName = firstName;
+  if (lastName) profile.lastName = lastName;
+  if (address) profile.address = address;
+
+  const result = await profile.save();
+
+  return res.json({ data: result, msg: "Profile updated" });
 };
