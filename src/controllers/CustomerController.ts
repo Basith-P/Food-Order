@@ -1,6 +1,6 @@
 import { plainToClass } from "class-transformer";
 import { CreateCustomerInputs } from "../dto";
-import { Request, Response } from "express";
+import { Request, Response, Router } from "express";
 import { validate } from "class-validator";
 import {
   encryptPassword,
@@ -51,3 +51,22 @@ export const customerSignup = async (req: Request, res: Response) => {
 };
 
 export const customerSignin = async (req: Request, res: Response) => {};
+
+export const customerVerify = async (req: Request, res: Response) => {
+  const { otp } = req.body;
+  const customer = req.user;
+
+  if (!customer) return res.status(401).json({ msg: "Unauthorized" });
+
+  const profile = await Customer.findById(customer._id);
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  if (profile.otp !== parseInt(otp)) return res.status(400).json({ msg: "Invalid OTP" });
+  if (profile.otpExpires < new Date())
+    return res.status(400).json({ msg: "OTP expired" });
+
+  profile.isVeified = true;
+  await profile.save();
+
+  return res.json({ msg: "Customer verified" });
+};

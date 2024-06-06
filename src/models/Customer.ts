@@ -9,7 +9,7 @@ interface ICustomer extends Document {
   lastName: string;
   address: string;
   isVeified: boolean;
-  otp: string;
+  otp: number;
   otpExpires: Date;
   lat: number;
   lng: number;
@@ -25,7 +25,7 @@ const CustomerSchema = new Schema(
     lastName: { type: String },
     address: { type: String },
     isVeified: { type: Boolean, default: false },
-    otp: { type: String },
+    otp: { type: Number },
     otpExpires: { type: Date },
     lat: { type: Number },
     lng: { type: Number },
