@@ -1,5 +1,5 @@
 import { plainToClass } from "class-transformer";
-import { CreateCustomerInputs } from "../dto";
+import { CreateCustomerInputs, CustomerLginInputs } from "../dto";
 import { Request, Response, Router } from "express";
 import { validate } from "class-validator";
 import {
@@ -8,12 +8,13 @@ import {
   generateSalt,
   generateToken,
   onRequestOTP,
+  validatePassword,
 } from "../utils";
 import Customer from "../models/Customer";
 
 export const customerSignup = async (req: Request, res: Response) => {
   const inputs = plainToClass(CreateCustomerInputs, req.body);
-  const errors = await validate(inputs, { validationError: { target: true } });
+  const errors = await validate(inputs, { validationError: { target: false } });
   if (errors.length > 0) return res.status(400).json(errors);
 
   const { email, password, phone } = inputs;
@@ -50,7 +51,27 @@ export const customerSignup = async (req: Request, res: Response) => {
   return res.json({ token, isVerified: result.isVeified, email: result.email });
 };
 
-export const customerSignin = async (req: Request, res: Response) => {};
+export const customerSignin = async (req: Request, res: Response) => {
+  const loginInputs = plainToClass(CustomerLginInputs, req.body);
+  const errors = await validate(loginInputs, { validationError: { target: false } });
+  if (errors.length > 0) return res.status(400).json(errors);
+
+  const { email, password } = loginInputs;
+
+  const customer = await Customer.findOne({ email });
+  if (!customer) return res.status(400).json({ msg: "Invalid email or password" });
+
+  const isValid = await validatePassword(password, customer.password, customer.salt);
+  if (!isValid) return res.status(400).json({ msg: "Invalid email or password" });
+
+  const token = generateToken({
+    _id: customer._id.toString(),
+    email: customer.email,
+    isVerified: customer.isVeified,
+  });
+
+  return res.json({ token, isVerified: customer.isVeified, email: customer.email });
+};
 
 export const customerVerify = async (req: Request, res: Response) => {
   const { otp } = req.body;
