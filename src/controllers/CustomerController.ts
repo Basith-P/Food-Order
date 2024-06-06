@@ -43,7 +43,7 @@ export const customerSignup = async (req: Request, res: Response) => {
   await onRequestOTP(otp, phone);
 
   const token = generateToken({
-    _id: result._id.toString(),
+    _id: result.id.toString(),
     email: result.email,
     isVerified: result.isVeified,
   });
@@ -65,7 +65,7 @@ export const customerSignin = async (req: Request, res: Response) => {
   if (!isValid) return res.status(400).json({ msg: "Invalid email or password" });
 
   const token = generateToken({
-    _id: customer._id.toString(),
+    _id: customer.id.toString(),
     email: customer.email,
     isVerified: customer.isVeified,
   });
