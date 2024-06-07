@@ -12,6 +12,10 @@ import {
   updateVendorService,
   venderLogin,
   processOrder,
+  getVendorOffers,
+  createVendorOffer,
+  updateVendorOffer,
+  deleteVendorOffer,
 } from "../controllers";
 import { authenticate } from "../middlewares";
 
@@ -58,5 +62,8 @@ router.route("/foods").get(getFoods).post(upload, addFood);
 router.get("/orders", getVendorOrders);
 router.get("/orders/:id", getOrderDetails);
 router.put("/orders/:id/process", processOrder);
+
+router.route("/offers").get(getVendorOffers).post(createVendorOffer);
+router.route("/offers/:id").patch(updateVendorOffer).delete(deleteVendorOffer);
 
 export { router as VenderRouter };

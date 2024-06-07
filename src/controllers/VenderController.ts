@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { findVender } from "./AdminController";
 import { generateToken, validatePassword } from "../utils/PasswordUtility";
-import { CreateFoodInput, EditVendorInputs } from "../dto";
+import { CreateFoodInput, CreateOfferInputs, EditVendorInputs } from "../dto";
 import Food from "../models/Food";
 import Order from "../models/Order";
+import Offer from "../models/Offer";
 
 export const venderLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
@@ -190,4 +191,121 @@ export const processOrder = async (req: Request, res: Response, next: NextFuncti
 
   const result = await order.save();
   return res.json({ data: result, msg: "Order updated" });
+};
+
+// OFFERS
+
+export const createVendorOffer = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const {
+    type,
+    title,
+    desc,
+    discount,
+    minVal,
+    startDate,
+    endDate,
+    promoCode,
+    promoType,
+    bank,
+    bins,
+    pincode,
+  } = <CreateOfferInputs>req.body;
+
+  const offer = await Offer.create({
+    type,
+    vendors: [vendor.id],
+    title,
+    desc,
+    discount,
+    minVal,
+    startDate,
+    endDate,
+    promoCode,
+    promoType,
+    bank,
+    bins,
+    pincode,
+  });
+
+  // if (vendor.offers == null) vendor.offers = [offer.id];
+  // else vendor.offers.push(offer.id);
+
+  // await vendor.save();
+
+  return res.json({ data: offer, msg: "Offer created" });
+};
+
+export const getVendorOffers = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const offers = await Offer.find({ vendors: vendor.id });
+
+  return res.json({ data: offers });
+};
+
+export const updateVendorOffer = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const offer = await Offer.findById(req.params.id);
+  if (offer == null) return res.status(404).json({ msg: "Offer not found" });
+
+  const {
+    type,
+    title,
+    desc,
+    discount,
+    minVal,
+    startDate,
+    endDate,
+    promoCode,
+    promoType,
+    bank,
+    bins,
+    pincode,
+  } = <CreateOfferInputs>req.body;
+
+  if (type) offer.type = type;
+  if (title) offer.title = title;
+  if (desc) offer.desc = desc;
+  if (discount) offer.discount = discount;
+  if (minVal) offer.minVal = minVal;
+  if (startDate) offer.startDate = startDate;
+  if (endDate) offer.endDate = endDate;
+  if (promoCode) offer.promoCode = promoCode;
+  if (promoType) offer.promoType = promoType;
+  if (bank) offer.bank = bank;
+  if (bins) offer.bins = bins;
+  if (pincode) offer.pincode = pincode;
+
+  const result = await offer.save();
+  return res.json({ data: result, msg: "Offer updated" });
+};
+
+export const deleteVendorOffer = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const offer = await Offer.findById(req.params.id);
+  if (offer == null) return res.status(404).json({ msg: "Offer not found" });
+
+  await offer.deleteOne();
+
+  return res.json({ msg: "Offer deleted" });
 };

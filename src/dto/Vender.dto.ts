@@ -27,3 +27,18 @@ export interface VenderPayload {
   email: string;
   foodType: [string];
 }
+
+export interface CreateOfferInputs {
+  type: string;
+  title: string;
+  desc: string;
+  discount: number;
+  minVal: number;
+  startDate: Date;
+  endDate: Date;
+  promoCode: string;
+  promoType: string;
+  bank?: [string];
+  bins?: [number];
+  pincode?: [string];
+}
