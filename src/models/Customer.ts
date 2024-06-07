@@ -1,5 +1,6 @@
 import { Schema, model, Document } from "mongoose";
 import { IOrder } from "./Order";
+import { IFood } from "./Food";
 
 interface ICustomer extends Document {
   email: string;
@@ -14,6 +15,7 @@ interface ICustomer extends Document {
   otpExpires: Date;
   lat: number;
   lng: number;
+  cart: { food: any; units: number }[];
   orders: string[] | IOrder[];
 }
 
@@ -31,6 +33,13 @@ const CustomerSchema = new Schema(
     otpExpires: { type: Date },
     lat: { type: Number },
     lng: { type: Number },
+    cart: [
+      {
+        food: { type: Schema.Types.ObjectId, ref: "Food", required: true },
+        units: { type: Number, required: true },
+        _id: false,
+      },
+    ],
     orders: [{ type: Schema.Types.ObjectId, ref: "Order" }],
   },
   {

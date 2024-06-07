@@ -148,6 +148,60 @@ export const editCustomerProfile = async (req: Request, res: Response) => {
   return res.json({ data: result, msg: "Profile updated" });
 };
 
+// CART
+
+export const addToCart = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  let { id, units } = <CreateOrderInputs>req.body;
+  if (!id || !units) return res.status(400).json({ msg: "Invalid request" });
+
+  const food = await Food.findById(id);
+  if (!food) return res.status(404).json({ msg: "Food not found" });
+
+  const profile = await Customer.findById(user._id).populate("cart.food");
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  let cartItems = profile.cart;
+
+  const index = cartItems.findIndex((item) => item.food._id.toString() === id);
+  if (index === -1) {
+    cartItems.push({ food: id, units: units });
+  } else {
+    cartItems[index].units += units;
+    if (cartItems[index].units < 1) cartItems.splice(index, 1); // remove item from cart
+  }
+
+  profile.cart = cartItems;
+  await profile.save();
+
+  return res.json({ msg: "Cart updated", data: profile.cart });
+};
+
+export const getCart = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const profile = await Customer.findById(user._id).populate("cart.food");
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  return res.json({ data: profile.cart });
+};
+
+export const clearCart = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const profile = await Customer.findById(user._id);
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  profile.cart = [];
+  await profile.save();
+
+  return res.json({ msg: "Cart cleared" });
+};
+
 // ORDERS
 
 export const getOrders = async (req: Request, res: Response) => {
