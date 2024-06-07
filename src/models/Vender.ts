@@ -1,6 +1,6 @@
 import { Schema, Document, model } from "mongoose";
 
-interface IVender extends Document {
+export interface IVender extends Document {
   name: string;
   ownerName: string;
   foodType: [string];

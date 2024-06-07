@@ -4,11 +4,14 @@ import multer from "multer";
 import {
   addFood,
   getFoods,
+  getOrderDetails,
+  getVendorOrders,
   getVenderProfile,
   updateVendorCoverimages,
   updateVendorProfile,
   updateVendorService,
   venderLogin,
+  processOrder,
 } from "../controllers";
 import { authenticate } from "../middlewares";
 
@@ -52,8 +55,8 @@ router.route("/services").patch(upload, updateVendorService);
 
 router.route("/foods").get(getFoods).post(upload, addFood);
 
-router.get("/", (req: Request, res: Response) => {
-  return res.send("Hello from Vender");
-});
+router.get("/orders", getVendorOrders);
+router.get("/orders/:id", getOrderDetails);
+router.put("/orders/:id/process", processOrder);
 
 export { router as VenderRouter };

@@ -1,4 +1,5 @@
 import { Document, Schema, model } from "mongoose";
+import { IVender } from "./Vender";
 
 export interface IOrder extends Document {
   items: { food: string; units: number }[];
@@ -8,6 +9,11 @@ export interface IOrder extends Document {
   payMethod: string;
   payResponse: string;
   status: string;
+  vendor: string | IVender;
+  remarks?: string;
+  deliveryId?: string;
+  deliveryTime?: number;
+  offers?: string;
 }
 
 const OrderSchema = new Schema(
@@ -48,6 +54,15 @@ const OrderSchema = new Schema(
       type: String,
       default: "pending",
     },
+    vendor: {
+      type: Schema.Types.ObjectId,
+      ref: "Vendor",
+      required: true,
+    },
+    remarks: { type: String },
+    deliveryId: { type: String },
+    deliveryTime: { type: Number },
+    offers: { type: String },
   },
   {
     timestamps: true,

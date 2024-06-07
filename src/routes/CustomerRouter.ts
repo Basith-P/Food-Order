@@ -10,8 +10,9 @@ import {
   getCart,
   getCustomerProfile,
   getOrderById,
-  getOrders,
+  getVendorOrders,
   requestOTP,
+  getOrders,
 } from "../controllers";
 import e, { Router } from "express";
 

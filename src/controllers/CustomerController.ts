@@ -247,6 +247,7 @@ export const createOrder = async (req: Request, res: Response) => {
     customer: profile.id,
     payMethod: "cash",
     payResponse: "",
+    vendor: foods[0].venderId,
   });
   if (!order) return res.status(500).json({ msg: "Failed to create order" });
 

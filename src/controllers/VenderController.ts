@@ -3,6 +3,7 @@ import { findVender } from "./AdminController";
 import { generateToken, validatePassword } from "../utils/PasswordUtility";
 import { CreateFoodInput, EditVendorInputs } from "../dto";
 import Food from "../models/Food";
+import Order from "../models/Order";
 
 export const venderLogin = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
@@ -141,4 +142,52 @@ export const getFoods = async (req: Request, res: Response, next: NextFunction) 
 
   const foods = await Food.find({ venderId: vendor.id });
   return res.json({ data: foods });
+};
+
+// ORDERS
+
+export const getVendorOrders = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const orders = await Order.find({ vendor: vendor.id }).populate("items.food");
+
+  return res.json({ data: orders });
+};
+
+export const getOrderDetails = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const order = await Order.findById(req.params.id).populate("items.food");
+
+  if (order == null) return res.status(404).json({ msg: "Order not found" });
+
+  return res.json({ data: order });
+};
+
+export const processOrder = async (req: Request, res: Response, next: NextFunction) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const vendor = await findVender(user._id);
+  if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
+
+  const order = await Order.findById(req.params.id);
+  if (order == null) return res.status(404).json({ msg: "Order not found" });
+
+  const { status, remarks, time } = req.body;
+
+  if (status) order.status = status;
+  if (remarks) order.remarks = remarks;
+  if (time) order.deliveryTime = time;
+
+  const result = await order.save();
+  return res.json({ data: result, msg: "Order updated" });
 };
