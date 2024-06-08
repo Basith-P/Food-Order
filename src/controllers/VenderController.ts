@@ -289,7 +289,7 @@ export const updateVendorOffer = async (req: Request, res: Response) => {
   if (promoType) offer.promoType = promoType;
   if (bank) offer.bank = bank;
   if (bins) offer.bins = bins;
-  if (pincode) offer.pincode = pincode;
+  if (pincode) offer.pincode = pincode.map((p: string) => parseInt(p));
 
   const result = await offer.save();
   return res.json({ data: result, msg: "Offer updated" });

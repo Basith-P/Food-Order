@@ -30,9 +30,15 @@ export class EditCustomerInputs {
   address: string;
 }
 
-export class CreateOrderInputs {
+export class CartItem {
   id: string;
   units: number;
+}
+
+export class CreateOrderInputs {
+  txnId: string;
+  items: CartItem[];
+  amount: number;
 }
 
 export interface CustomerPaylod {

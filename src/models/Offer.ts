@@ -11,10 +11,10 @@ export interface IOffer extends Document {
   startDate: Date;
   endDate: Date;
   promoCode: string;
-  promoType: string;
+  promoType: string; // USER (only once for user), BANK, ALL, CARD
   bank: any[];
   bins: any[];
-  pincode: string[];
+  pincode: number[];
   isActive: boolean;
 }
 

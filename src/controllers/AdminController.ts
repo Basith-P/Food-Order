@@ -3,6 +3,7 @@ import { CreateVenderInput } from "../dto";
 
 import Vender from "../models/Vender";
 import { encryptPassword, generateSalt } from "../utils/PasswordUtility";
+import Transaction from "../models/Transaction";
 
 export const findVender = async (id: string | undefined, email?: string) => {
   if (email != null) return Vender.findOne({ email });
@@ -48,3 +49,15 @@ export const getVenderById = async (req: Request, res: Response, next: NextFunct
   const vendor = await findVender(id);
   return res.json({ data: vendor });
 };
+
+export const getTxns = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const txn = await Transaction.find();
+  return res.json({ data: txn });
+}
+
+export const getTxnById = async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params;
+  const txn = await Transaction.findById(id);
+  return res.json({ data: txn });
+}

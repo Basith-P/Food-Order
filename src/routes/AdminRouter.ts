@@ -1,13 +1,12 @@
 import { Router, Request, Response } from "express";
-import { createVender, getVenderById, getVenders } from "../controllers";
+import { createVender, getTxnById, getTxns, getVenderById, getVenders } from "../controllers";
 
 const router = Router();
 
 router.route("/vendors").get(getVenders).post(createVender);
 router.get("/vendors/:id", getVenderById);
 
-router.get("/", (req: Request, res: Response) => {
-  return res.send("Hello from Admin");
-});
+router.get("/transactions", getTxns);
+router.get("/transactions/:id", getTxnById);
 
 export { router as AdminRouter };

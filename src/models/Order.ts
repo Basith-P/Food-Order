@@ -4,16 +4,14 @@ import { IVender } from "./Vender";
 export interface IOrder extends Document {
   items: { food: string; units: number }[];
   total: number;
+  paidAmount?: number;
   customer: string;
   date: Date;
-  payMethod: string;
-  payResponse: string;
   status: string;
   vendor: string | IVender;
   remarks?: string;
   deliveryId?: string;
   deliveryTime?: number;
-  offers?: string;
 }
 
 const OrderSchema = new Schema(
@@ -36,6 +34,7 @@ const OrderSchema = new Schema(
       type: Number,
       required: true,
     },
+    paidAmount: { type: Number },
     customer: {
       type: Schema.Types.ObjectId,
       ref: "Customer",
@@ -45,11 +44,6 @@ const OrderSchema = new Schema(
       type: Date,
       default: Date.now,
     },
-    payMethod: {
-      type: String,
-      required: true,
-    },
-    payResponse: { type: String },
     status: {
       type: String,
       default: "pending",
@@ -62,7 +56,6 @@ const OrderSchema = new Schema(
     remarks: { type: String },
     deliveryId: { type: String },
     deliveryTime: { type: Number },
-    offers: { type: String },
   },
   {
     timestamps: true,

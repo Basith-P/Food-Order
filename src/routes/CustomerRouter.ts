@@ -13,6 +13,8 @@ import {
   getVendorOrders,
   requestOTP,
   getOrders,
+  veifyOffer,
+  createPayment,
 } from "../controllers";
 import e, { Router } from "express";
 
@@ -28,6 +30,12 @@ router.route("/profile").get(getCustomerProfile).patch(editCustomerProfile);
 
 // CART
 router.route("/cart").get(getCart).post(addToCart).delete(clearCart);
+
+// OFFERS
+router.get('/offers/verify/:id', veifyOffer)
+
+// PAY
+router.post('/create-payment', createPayment)
 
 // ORDERS
 router.route("/orders").get(getOrders).post(createOrder);

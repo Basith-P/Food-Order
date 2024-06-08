@@ -2,7 +2,7 @@ import { Schema, model, Document } from "mongoose";
 import { IOrder } from "./Order";
 import { IFood } from "./Food";
 
-interface ICustomer extends Document {
+export interface ICustomer extends Document {
   email: string;
   password: string;
   phone: string;

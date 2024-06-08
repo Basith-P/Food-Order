@@ -1,5 +1,6 @@
 import { plainToClass } from "class-transformer";
 import {
+  CartItem,
   CreateCustomerInputs,
   CreateOrderInputs,
   CustomerLginInputs,
@@ -18,6 +19,8 @@ import {
 import Customer from "../models/Customer";
 import Food from "../models/Food";
 import Order from "../models/Order";
+import Offer from "../models/Offer";
+import Transaction from "../models/Transaction";
 
 export const customerSignup = async (req: Request, res: Response) => {
   const inputs = plainToClass(CreateCustomerInputs, req.body);
@@ -45,7 +48,8 @@ export const customerSignup = async (req: Request, res: Response) => {
     lastName: "",
   });
 
-  if (!result) return res.status(500).json({ msg: "Failed to create customer" });
+  if (!result)
+    return res.status(500).json({ msg: "Failed to create customer" });
 
   await onRequestOTP(otp, phone);
 
@@ -60,16 +64,24 @@ export const customerSignup = async (req: Request, res: Response) => {
 
 export const customerSignin = async (req: Request, res: Response) => {
   const loginInputs = plainToClass(CustomerLginInputs, req.body);
-  const errors = await validate(loginInputs, { validationError: { target: false } });
+  const errors = await validate(loginInputs, {
+    validationError: { target: false },
+  });
   if (errors.length > 0) return res.status(400).json(errors);
 
   const { email, password } = loginInputs;
 
   const customer = await Customer.findOne({ email });
-  if (!customer) return res.status(400).json({ msg: "Invalid email or password" });
+  if (!customer)
+    return res.status(400).json({ msg: "Invalid email or password" });
 
-  const isValid = await validatePassword(password, customer.password, customer.salt);
-  if (!isValid) return res.status(400).json({ msg: "Invalid email or password" });
+  const isValid = await validatePassword(
+    password,
+    customer.password,
+    customer.salt
+  );
+  if (!isValid)
+    return res.status(400).json({ msg: "Invalid email or password" });
 
   const token = generateToken({
     _id: customer.id.toString(),
@@ -77,7 +89,11 @@ export const customerSignin = async (req: Request, res: Response) => {
     isVerified: customer.isVeified,
   });
 
-  return res.json({ token, isVerified: customer.isVeified, email: customer.email });
+  return res.json({
+    token,
+    isVerified: customer.isVeified,
+    email: customer.email,
+  });
 };
 
 export const customerVerify = async (req: Request, res: Response) => {
@@ -89,7 +105,8 @@ export const customerVerify = async (req: Request, res: Response) => {
   const profile = await Customer.findById(customer._id);
   if (!profile) return res.status(404).json({ msg: "Customer not found" });
 
-  if (profile.otp !== parseInt(otp)) return res.status(400).json({ msg: "Invalid OTP" });
+  if (profile.otp !== parseInt(otp))
+    return res.status(400).json({ msg: "Invalid OTP" });
   if (profile.otpExpires < new Date())
     return res.status(400).json({ msg: "OTP expired" });
 
@@ -128,7 +145,9 @@ export const getCustomerProfile = async (req: Request, res: Response) => {
 
 export const editCustomerProfile = async (req: Request, res: Response) => {
   const profileInputs = plainToClass(EditCustomerInputs, req.body);
-  const errors = await validate(profileInputs, { validationError: { target: false } });
+  const errors = await validate(profileInputs, {
+    validationError: { target: false },
+  });
   if (errors.length > 0) return res.status(400).json(errors);
 
   const customer = req.user;
@@ -154,7 +173,7 @@ export const addToCart = async (req: Request, res: Response) => {
   const user = req.user;
   if (!user) return res.status(401).json({ msg: "Unauthorized" });
 
-  let { id, units } = <CreateOrderInputs>req.body;
+  let { id, units } = <CartItem>req.body;
   if (!id || !units) return res.status(400).json({ msg: "Invalid request" });
 
   const food = await Food.findById(id);
@@ -202,6 +221,74 @@ export const clearCart = async (req: Request, res: Response) => {
   return res.json({ msg: "Cart cleared" });
 };
 
+// OFFERS
+
+export const veifyOffer = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const profile = await Customer.findById(user._id);
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  const offerId = req.params.id;
+  if (!offerId) return res.status(400).json({ msg: "Invalid offer" });
+
+  const offer = await Offer.findById(offerId);
+  if (!offer) return res.status(404).json({ msg: "Offer not found" });
+
+  if (offer.endDate < new Date())
+    return res.status(400).json({ msg: "Offer expired" });
+  if (!offer.isActive) return res.status(400).json({ msg: "Offer not active" });
+
+  return res.json({ data: offer });
+};
+
+// PAYMENT
+
+export const createPayment = async (req: Request, res: Response) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ msg: "Unauthorized" });
+
+  const profile = await Customer.findById(user._id);
+  if (!profile) return res.status(404).json({ msg: "Customer not found" });
+
+  const { amount, mode, offerId } = req.body;
+  let payble = Number(amount);
+
+  if (offerId) {
+    const offer = await Offer.findById(offerId);
+    if (!offer) return res.status(404).json({ msg: "Offer not found" });
+
+    if (offer.endDate < new Date())
+      return res.status(400).json({ msg: "Offer expired" });
+    if (!offer.isActive)
+      return res.status(400).json({ msg: "Offer not active" });
+    if (offer.minVal > payble)
+      return res.status(400).json({ msg: "Minimum amount not met" });
+
+    payble = payble - offer.discount;
+  }
+
+  // payment gateway integration
+
+  // -----------------------------
+
+  const txn = await Transaction.create({
+    customer: profile.id,
+    vendor: "",
+    order: "",
+    amount: payble,
+    offerUsed: offerId,
+    status: "success",
+    payMode: mode,
+    payResponse: "",
+  });
+  if (!txn)
+    return res.status(500).json({ msg: "Failed to create transaction" });
+
+  return res.json({ data: txn });
+};
+
 // ORDERS
 
 export const getOrders = async (req: Request, res: Response) => {
@@ -214,6 +301,12 @@ export const getOrders = async (req: Request, res: Response) => {
   return res.json({ data: profile.orders });
 };
 
+const validateTxn = async (txnId: string) => {
+  const txn = await Transaction.findById(txnId);
+  if (!txn || txn.status === "FAILED") return null;
+  return txn;
+}
+
 export const createOrder = async (req: Request, res: Response) => {
   const user = req.user;
   if (!user) return res.status(401).json({ msg: "Unauthorized" });
@@ -221,23 +314,26 @@ export const createOrder = async (req: Request, res: Response) => {
   const profile = await Customer.findById(user._id);
   if (!profile) return res.status(404).json({ msg: "Customer not found" });
 
-  const cart = <CreateOrderInputs[]>req.body;
+  const { txnId, amount, items } = <CreateOrderInputs>req.body;
+
+  const txn = await validateTxn(txnId);
+  if (!txn) return res.status(400).json({ msg: "Invalid transaction" });
 
   let cartItems = [];
   let total = 0;
 
-  const foods = await Food.find({ _id: { $in: cart.map((item) => item.id) } });
-  if (foods.length !== cart.length)
+  const foods = await Food.find({ _id: { $in: items.map((item) => item.id) } });
+  if (foods.length !== items.length)
     return res.status(400).json({ msg: "Invalid food item" });
 
-  for (let i = 0; i < cart.length; i++) {
-    const food = foods.find((item) => item.id === cart[i].id);
+  for (let i = 0; i < items.length; i++) {
+    const food = foods.find((item) => item.id === items[i].id);
     if (!food) return res.status(400).json({ msg: "Invalid food item" });
 
-    total += food.price * cart[i].units;
+    total += food.price * items[i].units;
     cartItems.push({
       food: food.id,
-      units: cart[i].units,
+      units: items[i].units,
     });
   }
 
@@ -247,12 +343,19 @@ export const createOrder = async (req: Request, res: Response) => {
     customer: profile.id,
     payMethod: "cash",
     payResponse: "",
+    paidAmount: amount,
     vendor: foods[0].venderId,
   });
   if (!order) return res.status(500).json({ msg: "Failed to create order" });
 
   profile.orders.push(order.id);
   await profile.save();
+
+  txn.order = order.id;
+  txn.vendor = foods[0].venderId;
+  txn.customer = profile.id;
+  txn.status = "SUCCESS";
+  await txn.save();
 
   return res.json({ data: order });
 };
