@@ -49,10 +49,6 @@ For more details about the specific endpoints, refer to the respective controlle
 
 The application has a global error handler for uncaught exceptions. In case of an uncaught exception, the application logs the error and exits with status code 1.
 
-## Contributing
-
-Contributions are welcome. Please make sure to read the contributing guide before making a pull request.
-
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
