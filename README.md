@@ -45,10 +45,6 @@ The application provides several API endpoints grouped by their functionality:
 
 For more details about the specific endpoints, refer to the respective controller files in the `controllers/` directory.
 
-## Error Handling
-
-The application has a global error handler for uncaught exceptions. In case of an uncaught exception, the application logs the error and exits with status code 1.
-
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
