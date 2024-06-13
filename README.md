@@ -7,8 +7,6 @@ This is a comprehensive backend application for a food ordering system. It's bui
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [API Endpoints](#api-endpoints)
-- [Error Handling](#error-handling)
-- [Contributing](#contributing)
 
 ## Getting Started
 
