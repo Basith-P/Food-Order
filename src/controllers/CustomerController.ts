@@ -21,6 +21,8 @@ import Food from "../models/Food";
 import Order from "../models/Order";
 import Offer from "../models/Offer";
 import Transaction from "../models/Transaction";
+import Vender from "../models/Vender";
+import DeliveryUser from "../models/DeliveryUser";
 
 export const customerSignup = async (req: Request, res: Response) => {
   const inputs = plainToClass(CreateCustomerInputs, req.body);
@@ -301,11 +303,32 @@ export const getOrders = async (req: Request, res: Response) => {
   return res.json({ data: profile.orders });
 };
 
+const assignOrderForDelivery = async (orderId: string, venderId: string) => {
+  const vendor = await Vender.findById(venderId);
+  if (!vendor) throw new Error("Vendor not found");
+
+  const deliveryUsers = await DeliveryUser.find({
+    pincode: vendor.pincode,
+    isAvailable: true,
+    isVeified: true,
+  });
+  if (deliveryUsers.length === 0) throw new Error("No delivery user available");
+
+  const order = await Order.findById(orderId);
+  if (!order) throw new Error("Order not found");
+
+  // Find nearest delivery user
+  const deliveryUser = deliveryUsers[0];
+  order.deliveryId = deliveryUser.id;
+  await order.save();
+
+};
+
 const validateTxn = async (txnId: string) => {
   const txn = await Transaction.findById(txnId);
   if (!txn || txn.status === "FAILED") return null;
   return txn;
-}
+};
 
 export const createOrder = async (req: Request, res: Response) => {
   const user = req.user;

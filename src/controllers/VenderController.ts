@@ -6,14 +6,24 @@ import Food from "../models/Food";
 import Order from "../models/Order";
 import Offer from "../models/Offer";
 
-export const venderLogin = async (req: Request, res: Response, next: NextFunction) => {
+export const venderLogin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { email, password } = req.body;
 
   const vendor = await findVender("", email);
   if (vendor == null)
-    return res.status(401).json({ msg: "Vender with this email does not exist" });
+    return res
+      .status(401)
+      .json({ msg: "Vender with this email does not exist" });
 
-  const isValid = await validatePassword(password, vendor.password, vendor.salt);
+  const isValid = await validatePassword(
+    password,
+    vendor.password,
+    vendor.salt
+  );
 
   if (!isValid) return res.status(401).json({ msg: "Invalid password" });
 
@@ -96,22 +106,30 @@ export const updateVendorService = async (
   const vendor = await findVender(user._id);
   if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
 
-  const { isServiceAvailable } = req.body;
+  const { isServiceAvailable, lat, lng } = req.body;
 
-  vendor.isServiceAvailable = isServiceAvailable;
+  if (isServiceAvailable) vendor.isServiceAvailable = isServiceAvailable;
+  if (lat) vendor.lat = lat;
+  if (lat) vendor.lng = lng;
 
   const result = await vendor.save();
   return res.json({ data: result, msg: "Updated" });
 };
 
-export const addFood = async (req: Request, res: Response, next: NextFunction) => {
+export const addFood = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const user = req.user;
   if (!user) return res.status(401).json({ msg: "Unauthorized" });
 
   const vendor = await findVender(user._id);
   if (vendor == null) return res.status(404).json({ msg: "Vendor not found" });
 
-  const { name, desc, category, foodType, readyTime, price } = <CreateFoodInput>req.body;
+  const { name, desc, category, foodType, readyTime, price } = <
+    CreateFoodInput
+  >req.body;
 
   const images = req.files as Express.Multer.File[];
   const imagePaths = images.map((image) => image.filename);
@@ -134,7 +152,11 @@ export const addFood = async (req: Request, res: Response, next: NextFunction) =
   return res.json({ data: food, msg: "Food added" });
 };
 
-export const getFoods = async (req: Request, res: Response, next: NextFunction) => {
+export const getFoods = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const user = req.user;
   if (!user) return res.status(401).json({ msg: "Unauthorized" });
 
@@ -173,7 +195,11 @@ export const getOrderDetails = async (req: Request, res: Response) => {
   return res.json({ data: order });
 };
 
-export const processOrder = async (req: Request, res: Response, next: NextFunction) => {
+export const processOrder = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const user = req.user;
   if (!user) return res.status(401).json({ msg: "Unauthorized" });
 

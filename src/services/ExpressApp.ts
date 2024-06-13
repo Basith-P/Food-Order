@@ -2,7 +2,7 @@ import express, { Application } from "express";
 import mongoose from "mongoose";
 import path from "path";
 
-import { AdminRouter, ShoppingRouter, VenderRouter, CustomerRouter } from "../routes";
+import { AdminRouter, ShoppingRouter, VenderRouter, CustomerRouter, DeliveryRouter } from "../routes";
 
 const configureApp = async (app: Application) => {
   app.use(express.json());
@@ -13,6 +13,7 @@ const configureApp = async (app: Application) => {
   app.use("/vendor", VenderRouter);
   app.use("/shopping", ShoppingRouter);
   app.use("/users", CustomerRouter);
+  app.use("/delivery", DeliveryRouter);
 
   return app;
 };

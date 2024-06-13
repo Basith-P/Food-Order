@@ -11,10 +11,12 @@ const startServer = async () => {
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-    // log current date in utc format and date after 1 month
-    // console.log(new Date());
-    // console.log(new Date(new Date().setMonth(new Date().getMonth() + 1)));
   });
 };
 
 startServer();
+
+process.on('uncaughtException', (err) => {
+  console.error('There was an uncaught error', err)
+  process.exit(1)
+})

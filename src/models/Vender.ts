@@ -14,6 +14,8 @@ export interface IVender extends Document {
   coverImages: string[];
   rating: number;
   foods?: any;
+  lat: number;
+  lng: number;
 }
 
 const VenderSchema = new Schema(
@@ -31,6 +33,8 @@ const VenderSchema = new Schema(
     coverImages: { type: [String] },
     rating: { type: Number },
     foods: { type: [Schema.Types.ObjectId], ref: "Food", required: false },
+    lat: { type: Number },
+    lng: { type: Number },
   },
   {
     timestamps: true,
